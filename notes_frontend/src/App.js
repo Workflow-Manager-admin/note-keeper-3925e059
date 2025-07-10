@@ -3,11 +3,27 @@ import "./App.css";
 // Import Supabase client and set up config
 import { createClient } from "@supabase/supabase-js";
 
-// Read config from .env if exists, otherwise fall back to hardcoded values for now
+/*
+  SUPABASE CONFIGURATION
+  ---
+  Reads config from .env file. You MUST provide these variables in a .env file located in "notes_frontend" root:
+    REACT_APP_SUPABASE_URL
+    REACT_APP_SUPABASE_ANON_KEY
+  If not set, hardcoded fallback values are used (for development only).
+  Do NOT hardcode production keys here. Always use .env for deployment.
+*/
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || "https://mzxyorlnbfdkneiezgjz.supabase.co";
-const SUPABASE_ANON_KEY =
-  process.env.REACT_APP_SUPABASE_ANON_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eHlvcmxuYmZka25laWV6Z2p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNDUxMDksImV4cCI6MjA2NzYyMTEwOX0.URYpbwtC2u5ORBlUzpWPNspXMWq_cLBOKWMOgGbilyQ";
+const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eHlvcmxuYmZka25laWV6Z2p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIwNDUxMDksImV4cCI6MjA2NzYyMTEwOX0.URYpbwtC2u5ORBlUzpWPNspXMWq_cLBOKWMOgGbilyQ";
+
+// Warn during development if env vars are missing
+if (!process.env.REACT_APP_SUPABASE_URL || !process.env.REACT_APP_SUPABASE_ANON_KEY) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    "[NoteKeeper] Supabase env vars missing (.env not loaded): using fallback dev keys. For production, create a .env file in notes_frontend with REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY!"
+);
+
+}
+// Create singleton Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Simple unique ID generator
@@ -45,6 +61,9 @@ function App() {
         .select("*")
         .order("lastEdited", { ascending: false });
       if (error) {
+        // Enhanced error diagnostics (log exact Supabase error to console for developer)
+        // eslint-disable-next-line no-console
+        console.error("[NoteKeeper] Supabase fetch error:", error);
         setError("Failed to fetch notes.");
         setNotes([]);
       } else {
