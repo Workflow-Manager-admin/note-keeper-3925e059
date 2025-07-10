@@ -112,9 +112,13 @@ function App() {
   // PUBLIC_INTERFACE
   async function handleNewNote() {
     setError("");
-    // Insert new note into Supabase table "notes"
+    /* 
+      Insert new note into Supabase table "notes".
+      Let id auto-generate (do NOT supply it unless you must!).
+      If error occurs, log the full Supabase error for development diagnostics.
+    */
     const newNote = {
-      title: "Untitled Note",
+      title: "Untitled Note", // or customize
       content: "",
       lastEdited: new Date().toISOString(),
     };
@@ -123,10 +127,22 @@ function App() {
       .insert([newNote])
       .select();
     if (insertError) {
+      // eslint-disable-next-line no-console
+      console.error("[NoteKeeper] Supabase insert error:", insertError);
+      // Show user a generic friendly message
       setError("Failed to add note.");
       return;
     }
     if (data && data.length > 0) {
+      // Defensive: Supabase must return an id. If it does not, log error.
+      if (!data[0].id) {
+        // eslint-disable-next-line no-console
+        console.error(
+          "[NoteKeeper] No 'id' returned from Supabase after insert. Check table schema: it should have a SERIAL, BIGSERIAL, or UUID primary key named 'id' (auto-generated)."
+        );
+        setError("Failed to add note (schema issue: missing id).");
+        return;
+      }
       setNotes([data[0], ...notes]);
       setSelectedId(data[0].id);
       setEditTitle(data[0].title);
