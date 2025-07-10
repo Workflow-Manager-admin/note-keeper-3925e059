@@ -11,6 +11,17 @@ This project provides a minimal React template with a clean, modern UI and minim
 
 ## Getting Started
 
+### Supabase configuration
+
+Create a `.env` file in `notes_frontend` root and add:
+
+```
+REACT_APP_SUPABASE_URL=your_supabase_url
+REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+These are required to connect the frontend to Supabase for live data.
+
 In the project directory, you can run:
 
 ### `npm start`
